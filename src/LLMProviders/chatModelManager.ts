@@ -1,6 +1,5 @@
 import { CustomModel, getModelKey, ModelConfig } from "@/aiParams";
 import {
-  BREVILABS_MODELS_BASE_URL,
   BUILTIN_CHAT_MODELS,
   ChatModelProviders,
   ModelCapability,
@@ -34,7 +33,7 @@ import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatOllama } from "@langchain/ollama";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatXAI } from "@langchain/xai";
-import { MissingApiKeyError, MissingPlusLicenseError } from "@/error";
+import { MissingApiKeyError } from "@/error";
 import { Notice } from "obsidian";
 import { ChatOpenRouter } from "./ChatOpenRouter";
 import { BedrockChatModel, type BedrockChatModelFields } from "./BedrockChatModel";
@@ -57,7 +56,6 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.GROQ]: ChatGroq,
   [ChatModelProviders.OPENAI_FORMAT]: ChatOpenAI,
   [ChatModelProviders.SILICONFLOW]: ChatOpenAI,
-  [ChatModelProviders.COPILOT_PLUS]: ChatOpenRouter,
   [ChatModelProviders.MISTRAL]: ChatMistralAI,
   [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
   [ChatModelProviders.AMAZON_BEDROCK]: BedrockChatModel,
@@ -92,7 +90,6 @@ export default class ChatModelManager {
     [ChatModelProviders.OLLAMA]: () => "default-key",
     [ChatModelProviders.LM_STUDIO]: () => "default-key",
     [ChatModelProviders.OPENAI_FORMAT]: () => "default-key",
-    [ChatModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
     [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
     [ChatModelProviders.AMAZON_BEDROCK]: () => getSettings().amazonBedrockApiKey,
@@ -341,14 +338,6 @@ export default class ChatModelManager {
           customModel.temperature ?? settings.temperature,
           customModel
         ),
-      },
-      [ChatModelProviders.COPILOT_PLUS]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(settings.plusLicenseKey),
-        configuration: {
-          baseURL: BREVILABS_MODELS_BASE_URL,
-          fetch: customModel.enableCors ? safeFetch : undefined,
-        },
       },
       [ChatModelProviders.MISTRAL]: {
         model: modelName,
@@ -738,11 +727,6 @@ export default class ChatModelManager {
     }
     if (!selectedModel.hasApiKey) {
       const errorMessage = `API key is not provided for the model: ${modelKey}.`;
-      if (model.provider === ChatModelProviders.COPILOT_PLUS) {
-        throw new MissingPlusLicenseError(
-          "Copilot Plus license key is not configured. Please enter your license key in the Copilot Plus section at the top of Basic Settings."
-        );
-      }
       throw new MissingApiKeyError(errorMessage);
     }
 

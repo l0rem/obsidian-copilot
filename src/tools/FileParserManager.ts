@@ -342,15 +342,6 @@ export class FileParserManager {
 
     // Register parsers
     this.registerParser(new MarkdownParser());
-
-    // In project mode, use Docs4LLMParser for all supported files including PDFs
-    this.registerParser(new Docs4LLMParser(brevilabsClient, project));
-
-    // Only register PDFParser when not in project mode
-    if (!isProjectMode) {
-      this.registerParser(new PDFParser(brevilabsClient));
-    }
-
     this.registerParser(new CanvasParser());
   }
 

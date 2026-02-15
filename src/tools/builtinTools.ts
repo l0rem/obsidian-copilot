@@ -4,7 +4,7 @@ import { replaceInFileTool, writeToFileTool } from "./ComposerTools";
 import { createGetFileTreeTool } from "./FileTreeTools";
 import { updateMemoryTool } from "./memoryTools";
 import { readNoteTool } from "./NoteTools";
-import { localSearchTool, webSearchTool } from "./SearchTools";
+import { localSearchTool } from "./SearchTools";
 import { createGetTagListTool } from "./TagTools";
 import {
   convertTimeBetweenTimezonesTool,
@@ -13,7 +13,6 @@ import {
   getTimeRangeMsTool,
 } from "./TimeTools";
 import { ToolDefinition, ToolRegistry } from "./ToolRegistry";
-import { youtubeTranscriptionTool } from "./YoutubeTools";
 
 /**
  * Define all built-in tools with their metadata
@@ -66,25 +65,6 @@ For exhaustive "find all" searches:
 - When setting returnAll: true, also call getFileTree to get all note titles as reference. This helps verify search completeness and identify notes the search may have missed.`,
     },
   },
-  {
-    tool: webSearchTool,
-    metadata: {
-      id: "webSearch",
-      displayName: "Web Search",
-      description:
-        "Search the INTERNET (NOT vault notes) when user explicitly asks for web/online information",
-      category: "search",
-      copilotCommands: ["@websearch", "@web"],
-      customPromptInstructions: `For webSearch:
-- ONLY use when the user's query contains explicit web-search intent like:
-  * "web search", "internet search", "online search"
-  * "Google", "search online", "look up online", "search the web"
-- Always provide an empty chatHistory array
-
-Example: "search the web for python tutorials" → query: "python tutorials", chatHistory: []`,
-    },
-  },
-
   // Time tools (always enabled)
   {
     tool: getCurrentTimeTool,
@@ -212,22 +192,6 @@ Examples:
 Example: To add "Bob Johnson" to attendees list in notes/meeting.md:
 path: "notes/meeting.md"
 diff: "------- SEARCH\\n## Attendees\\n- John Smith\\n- Jane Doe\\n=======\\n## Attendees\\n- John Smith\\n- Jane Doe\\n- Bob Johnson\\n+++++++ REPLACE"`,
-    },
-  },
-
-  // Media tools
-  {
-    tool: youtubeTranscriptionTool,
-    metadata: {
-      id: "youtubeTranscription",
-      displayName: "YouTube Transcription",
-      description: "Get transcripts from YouTube videos",
-      category: "media",
-      isPlusOnly: true,
-      requiresUserMessageContent: true,
-      customPromptInstructions: `For youtubeTranscription:
-- Use when user provides YouTube URLs
-- No parameters needed - the tool will process URLs from the conversation`,
     },
   },
 ];

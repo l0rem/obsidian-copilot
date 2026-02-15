@@ -4,12 +4,12 @@ import { createRoot } from "react-dom/client";
 import { Root } from "react-dom/client";
 import { Button } from "@/components/ui/button";
 import {
-  DEFAULT_COPILOT_PLUS_CHAT_MODEL,
-  DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL,
+  DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY,
   DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY,
   applyPlusSettings,
 } from "@/plusUtils";
 import { getSettings } from "@/settings/model";
+import { getModelNameFromKey } from "@/utils";
 import { TriangleAlert } from "lucide-react";
 
 function CopilotPlusWelcomeModalContent({
@@ -20,6 +20,8 @@ function CopilotPlusWelcomeModalContent({
   onCancel: () => void;
 }) {
   const settings = getSettings();
+  const defaultChatModelName = getModelNameFromKey(DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY);
+  const defaultEmbeddingModelName = getModelNameFromKey(DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY);
   return (
     <div className="tw-flex tw-flex-col tw-gap-4">
       <div>
@@ -37,12 +39,11 @@ function CopilotPlusWelcomeModalContent({
             Default mode: <b className="tw-text-accent">Copilot Plus</b>
           </li>
           <li>
-            Chat model: <b className="tw-text-accent">{DEFAULT_COPILOT_PLUS_CHAT_MODEL}</b>
+            Chat model: <b className="tw-text-accent">{defaultChatModelName}</b>
           </li>
           <li>
             <div>
-              Embedding model:{" "}
-              <b className="tw-text-accent">{DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL}</b>
+              Embedding model: <b className="tw-text-accent">{defaultEmbeddingModelName}</b>
             </div>
             {settings.embeddingModelKey !== DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY && (
               <div className="tw-flex tw-items-center tw-gap-1 tw-text-sm tw-text-warning">

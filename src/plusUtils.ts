@@ -1,30 +1,19 @@
 import { setChainType, setModelKey } from "@/aiParams";
 import { ChainType } from "@/chainFactory";
 import { CopilotPlusExpiredModal } from "@/components/modals/CopilotPlusExpiredModal";
-import {
-  ChatModelProviders,
-  ChatModels,
-  DEFAULT_SETTINGS,
-  EmbeddingModelProviders,
-  EmbeddingModels,
-  PlusUtmMedium,
-} from "@/constants";
+import { DEFAULT_SETTINGS, PlusUtmMedium } from "@/constants";
 import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
 import { logError, logInfo } from "@/logger";
 import { getSettings, setSettings, updateSetting, useSettingsValue } from "@/settings/model";
 import { Notice } from "obsidian";
 import React from "react";
 
-export const DEFAULT_COPILOT_PLUS_CHAT_MODEL = ChatModels.COPILOT_PLUS_FLASH;
-export const DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY =
-  DEFAULT_COPILOT_PLUS_CHAT_MODEL + "|" + ChatModelProviders.COPILOT_PLUS;
-export const DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL = EmbeddingModels.COPILOT_PLUS_SMALL;
-export const DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY =
-  DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL + "|" + EmbeddingModelProviders.COPILOT_PLUS;
-
 // Default models for free users (imported from DEFAULT_SETTINGS)
 export const DEFAULT_FREE_CHAT_MODEL_KEY = DEFAULT_SETTINGS.defaultModelKey;
 export const DEFAULT_FREE_EMBEDDING_MODEL_KEY = DEFAULT_SETTINGS.embeddingModelKey;
+
+export const DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY = DEFAULT_FREE_CHAT_MODEL_KEY;
+export const DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY = DEFAULT_FREE_EMBEDDING_MODEL_KEY;
 
 // ============================================================================
 // SELF-HOST MODE VALIDATION
@@ -60,24 +49,12 @@ const SELF_HOST_ELIGIBLE_PLANS = ["believer", "supporter"];
  * Requires license key + toggle enabled + (permanent validation OR within grace period).
  */
 export function isSelfHostModeValid(): boolean {
-  const settings = getSettings();
-  if (!settings.plusLicenseKey) {
-    return false;
-  }
-  if (!settings.enableSelfHostMode || settings.selfHostModeValidatedAt == null) {
-    return false;
-  }
-  // Permanently valid after 3 successful validations
-  if (settings.selfHostValidationCount >= SELF_HOST_PERMANENT_VALIDATION_COUNT) {
-    return true;
-  }
-  // Otherwise, check grace period
-  return Date.now() - settings.selfHostModeValidatedAt < SELF_HOST_GRACE_PERIOD_MS;
+  return true;
 }
 
 /** Check if the model key is a Copilot Plus model. */
 export function isPlusModel(modelKey: string): boolean {
-  return modelKey.split("|")[1] === EmbeddingModelProviders.COPILOT_PLUS;
+  return false;
 }
 
 /**
@@ -86,12 +63,7 @@ export function isPlusModel(modelKey: string): boolean {
  * Use this for synchronous checks (e.g., model validation, UI state).
  */
 export function isPlusEnabled(): boolean {
-  const settings = getSettings();
-  // Self-host mode with valid plan validation bypasses Plus requirements
-  if (isSelfHostModeValid()) {
-    return true;
-  }
-  return settings.isPlusUser === true;
+  return true;
 }
 
 /**
@@ -99,24 +71,7 @@ export function isPlusEnabled(): boolean {
  * Returns true when self-host mode is valid to allow offline usage.
  */
 export function useIsPlusUser(): boolean | undefined {
-  const settings = useSettingsValue();
-  // Self-host mode with valid plan validation bypasses Plus requirements (requires license key)
-  if (
-    settings.plusLicenseKey &&
-    settings.enableSelfHostMode &&
-    settings.selfHostModeValidatedAt != null
-  ) {
-    // Permanently valid after 3 successful validations
-    if (settings.selfHostValidationCount >= SELF_HOST_PERMANENT_VALIDATION_COUNT) {
-      return true;
-    }
-    // Otherwise, check grace period
-    const isValid = Date.now() - settings.selfHostModeValidatedAt < SELF_HOST_GRACE_PERIOD_MS;
-    if (isValid) {
-      return true;
-    }
-  }
-  return settings.isPlusUser;
+  return true;
 }
 
 /**
@@ -124,18 +79,7 @@ export function useIsPlusUser(): boolean | undefined {
  * When self-host mode is valid, this returns true to allow offline usage.
  */
 export async function checkIsPlusUser(context?: Record<string, any>): Promise<boolean | undefined> {
-  // Self-host mode with valid plan validation bypasses license check
-  if (isSelfHostModeValid()) {
-    return true;
-  }
-
-  if (!getSettings().plusLicenseKey) {
-    turnOffPlus();
-    return false;
-  }
-  const brevilabsClient = BrevilabsClient.getInstance();
-  const result = await brevilabsClient.validateLicenseKey(context);
-  return result.isValid;
+  return true;
 }
 
 /** Check if the user is on a plan that qualifies for self-host mode. */

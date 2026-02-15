@@ -22,9 +22,8 @@ import { ToolManager } from "@/tools/toolManager";
 import { ToolResultFormatter } from "@/tools/ToolResultFormatter";
 import { ToolRegistry } from "@/tools/ToolRegistry";
 import { initializeBuiltinTools } from "@/tools/builtinTools";
-import { localSearchTool, webSearchTool } from "@/tools/SearchTools";
+import { localSearchTool } from "@/tools/SearchTools";
 import { updateMemoryTool } from "@/tools/memoryTools";
-import { extractChatHistory } from "@/utils";
 import { ChatMessage, ResponseMetadata } from "@/types/message";
 import { getApiErrorMessage, getMessageRole, withSuppressedTokenWarnings } from "@/utils";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
@@ -59,7 +58,6 @@ import { recordPromptPayload } from "./utils/promptPayloadRecorder";
 import { unescapeXml } from "./utils/xmlParsing";
 import { StructuredTool } from "@langchain/core/tools";
 import { AIMessage } from "@langchain/core/messages";
-import ProjectManager from "@/LLMProviders/projectManager";
 import { isProjectMode } from "@/aiParams";
 
 type ToolCallWithExecutor = {
@@ -255,24 +253,6 @@ Otherwise omit RETURN_ALL or output: [RETURN_ALL: false]`;
             salientTerms: context.salientTerms,
             timeRange: context.timeRange,
             returnAll: context.returnAll === true ? true : undefined,
-          },
-        });
-      }
-    }
-
-    // Handle @websearch command and also support @web for backward compatibility
-    if (message.includes("@websearch") || message.includes("@web")) {
-      const hasWebSearch = toolCalls.some((tc) => tc.tool.name === "webSearch");
-      if (!hasWebSearch) {
-        const memory = ProjectManager.instance.getCurrentChainManager().memoryManager.getMemory();
-        const memoryVariables = await memory.loadMemoryVariables({});
-        const chatHistory = extractChatHistory(memoryVariables);
-
-        toolCalls.push({
-          tool: webSearchTool,
-          args: {
-            query: cleanQuery,
-            chatHistory,
           },
         });
       }

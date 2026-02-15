@@ -1,7 +1,6 @@
 import { ChainType, Document } from "@/chainFactory";
 import {
   ChatModelProviders,
-  EmbeddingModelProviders,
   NOMIC_EMBED_TEXT,
   Provider,
   ProviderInfo,
@@ -383,7 +382,7 @@ export function getFileName(file: TFile): string {
  * Valid file extensions for note context.
  * This does NOT include images - images are handled separately in the UI.
  */
-export const ALLOWED_NOTE_CONTEXT_EXTENSIONS = ["md", "pdf", "canvas"];
+export const ALLOWED_NOTE_CONTEXT_EXTENSIONS = ["md", "canvas"];
 
 /**
  * Check if a file is allowed for note context (markdown, PDF, or canvas files).
@@ -403,7 +402,7 @@ export function isAllowedFileForNoteContext(file: TFile | null): boolean {
  * @returns true if this is a Plus mode chain, false otherwise
  */
 export function isPlusChain(chainType: ChainType): boolean {
-  return chainType === ChainType.COPILOT_PLUS_CHAIN || chainType === ChainType.PROJECT_CHAIN;
+  return true;
 }
 
 /**
@@ -1216,8 +1215,6 @@ export function getNeedSetKeyProvider(): Provider[] {
     ChatModelProviders.LM_STUDIO,
     ChatModelProviders.AZURE_OPENAI,
     ChatModelProviders.GITHUB_COPILOT,
-    EmbeddingModelProviders.COPILOT_PLUS,
-    EmbeddingModelProviders.COPILOT_PLUS_JINA,
   ];
 
   return (Object.keys(ProviderInfo) as Provider[]).filter((key) => !excludeProviders.includes(key));
