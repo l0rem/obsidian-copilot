@@ -215,6 +215,7 @@ export enum ChatModelProviders {
   DEEPSEEK = "deepseek",
   COHEREAI = "cohereai",
   SILICONFLOW = "siliconflow",
+  TAVILY = "tavily",
   GITHUB_COPILOT = "github-copilot",
 }
 
@@ -603,6 +604,13 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     listModelURL: "https://api.siliconflow.com/v1/models",
     testModel: ChatModels.SILICONFLOW_DEEPSEEK_V3,
   },
+  [ChatModelProviders.TAVILY]: {
+    label: "Tavily (Web Search)",
+    host: "https://api.tavily.com",
+    curlBaseURL: "https://api.tavily.com",
+    keyManagementURL: "https://tavily.com/",
+    listModelURL: "",
+  },
   [ChatModelProviders.OLLAMA]: {
     label: "Ollama",
     host: "http://localhost:11434/v1/",
@@ -670,6 +678,7 @@ export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSe
   deepseek: "deepseekApiKey",
   "amazon-bedrock": "amazonBedrockApiKey",
   siliconflow: "siliconflowApiKey",
+  tavily: "tavilyApiKey",
   "github-copilot": "githubCopilotToken",
 };
 
@@ -783,6 +792,7 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   amazonBedrockApiKey: "",
   amazonBedrockRegion: "",
   siliconflowApiKey: "",
+  tavilyApiKey: "",
   // GitHub Copilot OAuth tokens
   githubCopilotAccessToken: "",
   githubCopilotToken: "",

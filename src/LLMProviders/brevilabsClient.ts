@@ -1,3 +1,7 @@
+import { logError } from "@/logger";
+import { getSettings } from "@/settings/model";
+import { safeFetch } from "@/utils";
+
 export interface RerankResponse {
   response: {
     object: string;
@@ -120,8 +124,73 @@ export class BrevilabsClient {
     throw new Error("Document processing is disabled in this build.");
   }
 
-  async webSearch(_query: string): Promise<WebSearchResponse> {
-    throw new Error("Web search is disabled in this build.");
+  async webSearch(query: string): Promise<WebSearchResponse> {
+    const startTime = Date.now();
+    const settings = getSettings();
+    const apiKey = settings.tavilyApiKey;
+
+    if (!apiKey) {
+      throw new Error("Tavily API key is missing. Please add it in settings to enable web search.");
+    }
+
+    try {
+      const response = await safeFetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          api_key: apiKey,
+          query: query,
+          search_depth: "basic",
+          include_answer: true,
+          max_results: 5,
+        }),
+      });
+
+      const data = await response.json();
+      const elapsed = Date.now() - startTime;
+
+      if (!data || data.error) {
+        throw new Error(data?.error || "Failed to fetch from Tavily API");
+      }
+
+      // Format sources for citations
+      const citations = (data.results || []).map((result: any) => {
+        return `${result.title}: ${result.url}`;
+      });
+
+      // Combine answer and results for the content
+      let content = data.answer || "";
+      if (!content && data.results && data.results.length > 0) {
+        content = "Here are the search results:";
+      }
+
+      // Add snippets from results if answer is short or missing
+      if (data.results && data.results.length > 0) {
+        content += "\n\nSources:\n";
+        data.results.forEach((result: any, index: number) => {
+          content += `\n[^${index + 1}]: ${result.title} - ${result.url}\n${result.content}\n`;
+        });
+      }
+
+      return {
+        response: {
+          choices: [
+            {
+              message: {
+                content: content,
+              },
+            },
+          ],
+          citations: citations,
+        },
+        elapsed_time_ms: elapsed,
+      };
+    } catch (error) {
+      logError("Tavily web search failed:", error);
+      throw error;
+    }
   }
 
   async youtube4llm(_url: string): Promise<Youtube4llmResponse> {

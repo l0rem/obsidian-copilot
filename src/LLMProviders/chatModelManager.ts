@@ -60,6 +60,11 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
   [ChatModelProviders.AMAZON_BEDROCK]: BedrockChatModel,
   [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotChatModel,
+  [ChatModelProviders.TAVILY]: class {
+    constructor() {
+      throw new Error("Tavily is not a chat provider");
+    }
+  } as any,
 } as const;
 
 type ChatProviderConstructMap = typeof CHAT_PROVIDER_CONSTRUCTORS;
@@ -94,6 +99,7 @@ export default class ChatModelManager {
     [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
     [ChatModelProviders.AMAZON_BEDROCK]: () => getSettings().amazonBedrockApiKey,
     [ChatModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
+    [ChatModelProviders.TAVILY]: () => getSettings().tavilyApiKey,
     [ChatModelProviders.GITHUB_COPILOT]: () =>
       getSettings().githubCopilotToken || getSettings().githubCopilotAccessToken,
   } as const;
@@ -361,6 +367,7 @@ export default class ChatModelManager {
         // because Obsidian's requestUrl doesn't support cancellation.
         fetchImplementation: customModel.enableCors ? safeFetchNoThrow : undefined,
       },
+      [ChatModelProviders.TAVILY]: {},
     };
 
     let selectedProviderConfig =

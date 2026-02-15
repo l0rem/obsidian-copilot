@@ -394,6 +394,7 @@ export interface ProviderResponseMap {
   [ChatModelProviders.AZURE_OPENAI]: null;
   [ChatModelProviders.AMAZON_BEDROCK]: unknown;
   [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotModelResponse;
+  [ChatModelProviders.TAVILY]: any;
 }
 
 // Adapter type definition - converts provider-specific models to standard format

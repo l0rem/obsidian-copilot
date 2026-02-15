@@ -4,7 +4,7 @@ import { replaceInFileTool, writeToFileTool } from "./ComposerTools";
 import { createGetFileTreeTool } from "./FileTreeTools";
 import { updateMemoryTool } from "./memoryTools";
 import { readNoteTool } from "./NoteTools";
-import { localSearchTool } from "./SearchTools";
+import { localSearchTool, webSearchTool } from "./SearchTools";
 import { createGetTagListTool } from "./TagTools";
 import {
   convertTimeBetweenTimezonesTool,
@@ -63,6 +63,21 @@ For exhaustive "find all" searches:
 - Set returnAll: true when the user wants ALL matching notes (e.g., "find all my X", "list every Y", "show me all Z", "how many notes about W")
 - Keep returnAll: false (or omit) for normal questions seeking specific information
 - When setting returnAll: true, also call getFileTree to get all note titles as reference. This helps verify search completeness and identify notes the search may have missed.`,
+    },
+  },
+  // Web search tool
+  {
+    tool: webSearchTool,
+    metadata: {
+      id: "webSearch",
+      displayName: "Web Search",
+      description: "Search the internet for real-time information",
+      category: "search",
+      copilotCommands: ["@web"],
+      customPromptInstructions: `For webSearch (searching the internet):
+- Use this tool when the user explicitly asks for information from the web or current events that wouldn't be in your training data or the vault.
+- Always provide a clear, concise query.
+- Use the results to answer the user's question, citing sources using the [^n] format.`,
     },
   },
   // Time tools (always enabled)
